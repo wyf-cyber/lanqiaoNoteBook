@@ -158,3 +158,5 @@ for i in range(1,k-1):
     print(s-temp[i-1]-temp[i]+dfs(path[i-1],path[i+1],path[i-1],-1,0),end = ' ')
 print(s-temp[k-2],end = ' ')
 ```
+## 类型三：模拟问题中的DFS
+### 例题 1：与或异或

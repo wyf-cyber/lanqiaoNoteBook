@@ -13,7 +13,7 @@ ans = 4+19+21*20
 print(ans)
 ```
 
-## 试题B：寻找整数
+## 试题B：寻找整数（5分）
 **题目描述：**
 > 有一个不超过 $10^{17}$ 的正整数 $n$，n，已知这个数除以 2 至 49 后的余数如下表所示，求这个正整数最小是多少。
 ![alt text](image.png)
@@ -53,7 +53,7 @@ for i in range(num[0],LIMIT,d):
 print(2022040920220409) # 程序运算时间过长，直接在本地编译器上运行后打印结果
 ```
 
-## 试题C：质因数的个数
+## 试题C：质因数的个数（10分）
 **题目描述：**
 > 给定正整数 n，请问有多少个质数是 n 的约数
 
@@ -142,6 +142,224 @@ print(ans)
 
 **代码示例：**
 ```py
-# 经过分析，拼接后矩形一共有4，6，8三种边数，其中8条边的情况最多，所以使用排除法，判断是否是4条边或6条边
-for i in range()
+# 经过分析，拼接后矩形一共有4，6，8三种边数，其中8条边的情况最多，所以使用排除法，判断是否是4条边或6条边，如果均不是就输出8
+# 4条边的情况
+# 三个矩形均有一边相等
+# 两个矩形一遍相等且另一边的和是第三个矩形的某一边的边长
+t = int(input())
+def check6(a,b,c):
+    if a+b==c or a+c==b or b+c==a:
+        return True
+    elif a==b or a==c or b ==c:
+        return True
+    else:
+        return False
+def check4(a1,b1,a2,b2,a3,b3):
+    for i in [a1,b1]:
+        if i == a2+a3 and b2 == b3:
+            return True
+        elif i == a2 + b3 and b2 == a3:
+            return True
+        elif i == b2 + a3 and a2 ==b3:
+            return True
+        elif i == b2 + b3 and a2 == a3:
+            return True
+        elif i ==a2 and a2 ==a3:#三条边相等,4种
+            return True
+        elif i ==a2 and a2 ==b3:
+            return True
+        elif i ==b2 and b2 == a3:
+            return True
+        elif i == b2 and b2 == b3:
+            return True
+
+for i in range(t):
+    s = list(map(int,input().split()))
+    ans = 8
+    #因为边数有3种情况:
+    # 4（完美，有两边加起来等于另一边，另一边刚好相等)
+    # 6（有两边加起来等于另一边)
+    # 8（每个边都不等，任意两边加起来也不等第三边)
+    a1,b1,a2,b2,a3,b3 = s[0],s[1],s[2],s[3],s[4],s[5]
+    for i in range(0,2):
+        for j in range(2,4):
+            for k in range(4,6):
+                x1,x2,x3 = s[i],s[j],s[k]
+                if check6(x1,x2,x3):
+                    ans = min(6,ans)
+                if check4(a1,b1,a2,b2,a3,b3):
+                    ans = min(4,ans)
+                if check4(a2,b2,a1,b1,a3,b3):
+                    ans = min(4,ans)
+                if check4(a3,b3,a1,b1,a2,b2):
+                    ans = min(4,ans)
+    print(ans)
 ```
+## 试题 E：消除游戏
+**题目描述：**
+> 在一个字符串 $S$ 中，如果 $S_i = S_{i−1}$ 且 $S_i \neq S_{n+1}$ ，则称 $S_i$ 和 $S_{i+1}$ 为边缘字符。如果且 $S_i = S_{i+1}$，则 $S_{i−1}$ 和 $S_i$ 也称为边缘字符。其它的字符都不是边缘字符。\
+对于一个给定的串 $S$，一次操作可以一次性删除该串中的所有边缘字符（操作后可能产生新的边缘字符）。\
+请问经过 $2^{64}$ 次操作后，字符串 S 变成了怎样的字符串，如果结果为空则输出 EMPTY。 
+
+**输入格式：**
+> 输入一行包含一个字符串 S 。
+
+**输出格式：**
+> 输出一行包含一个字符串表示答案，如果结果为空则输出 EMPTY。
+
+**解题思路：**\
+在删除一对边缘字符后，会产生新的相邻组合，这个新的相邻组合也有可能是边缘字符，所以需要重复操作，但是
+
+**代码示例：**
+```py
+from copy import copy
+# 暴力算法
+# 可以通过58%的测试样例
+LIMIT = 1 << 64
+def f(s):
+    # 进行一轮删除操作
+    deleted = set() # 创建一个集合储存本轮所有应当被删除的节点的下标
+    for i in range(1,len(s)-1):
+        # 注意两边特殊处理
+        if s[i-1] != s[i] and s[i] == s[i+1]:
+            deleted.add(i-1)
+            deleted.add(i)
+        elif s[i-1] == s[i] and s[i] != s[i+1]:
+            deleted.add(i)
+            deleted.add(i+1)
+    # 按照deleted数组重新生成一个字符串，比执行多次删除操作更快
+    next_s = ''
+    for i in range(len(s)):
+        if i in deleted:
+            continue
+        next_s += s[i]
+    return next_s
+
+s = input()
+flag = True
+for i in range(LIMIT):
+    pre = copy(s)
+    s = f(s)
+    if s == '':
+        print('EMPTY')
+        flag = False
+        break
+    elif s == pre:
+        # 所有边缘字符均被删除，直接结束程序
+        print(s)
+        flag = False
+        break
+if flag:
+    print(s)
+```
+
+```py
+def remove(index):
+    # delete the specialized node
+    global left,right,deleted
+    if deleted[index]:
+        return 
+    right[left[index]] = right[index]
+    left[right[index]] = left[index]
+    deleted[index] = True
+    return 
+
+# 为原字符串前后添加两个不可能出现在原字符串中的字符，这两个字符不会被判定为边缘字符，也不会被删除
+# 存在的意义是为了避免开头结尾的特殊讨论，直接生成链表的头尾节点
+s = '@' + input() + '@'
+n = len(s)
+# 创建一个列表存储所有元素的右指针
+right = [i+1 for i in range(n)]
+left = [i-1 for i in range(n)]
+right[n-1] = -1
+# 因为循环的次数很多，所以最终一定不会存在边缘字符，只需不断循环直到不存在边缘字符就可以
+deleted = [False]*n # record whether the element has been deleted or not
+modify = True
+while modify:
+    modify = False
+    # 应用链表查询整个字符串，检查是否存在边缘字符，如果不存在边缘字符
+    cur = right[0]
+    need_delete = [] # store all of the index that belong to the node,which should be delete
+    # search  
+    while cur != -1:
+        cur = right[cur]
+        if cur == -1:
+            # 只剩下1个元素了
+            break
+        if s[left[cur]] != s[cur] and s[cur] == s[right[cur]]:
+            if s[left[cur]] != '@':
+                # can't delete the head node
+                # delete the cur and left[cur]
+                need_delete.append(left[cur])
+                need_delete.append(cur) 
+        elif s[left[cur]] == s[cur] and s[cur] != s[right[cur]]:
+            if s[right[cur]] != '@':
+                # can't delete the rear node
+                # delete cur and right[cur]
+                need_delete.append(cur)
+                need_delete.append(right[cur])
+    # delete
+    if need_delete:
+        # the list is not empty
+        modify = True
+        for i in need_delete:
+            remove(i)
+# print answer
+p = right[0]
+if p == -1:
+    print('EMPTY')
+else:
+    while p != -1:
+        print(s[p], end = '')
+        p = right[p]
+```
+
+
+## 试题 F：重新排序
+**题目描述：**
+> 给定一个数组 $A$ 和一些查询 $L_i , R_i$，求数组中第 $L_i$ 至第 $R_i$ 个元素之和。小蓝觉得这个问题很无聊，于是他想重新排列一下数组，使得最终每个查询结果的和尽可能地大。小蓝想知道相比原数组，所有查询结果的总和最多可以增加多少?
+
+**输入格式：**
+> 输入第一行包含一个整数 n。\
+第二行包含 n 个整数 $A_1, A_2, · · · , A_n$，相邻两个整数之间用一个空格分隔。\
+第三行包含一个整数 $m$ 表示查询的数目。\
+接下来 $m$ 行，每行包含两个整数 $L_i、R_i$ ，相邻两个整数之间用一个空格分隔。
+
+**输出格式：**
+> 输出一行包含一个整数表示答案。
+
+**解题思路：**\
+看到求区间的和，想到前缀和与差分算法。然后想如何才能使区间和最大，注意到将会读取多个区间的和，这些区间可能会出现重叠，为了让读取的结果尽可能地大，我们应当确保一个元素被读取的次数越多，它的值越大。根据这个思路，我们可以先利用差分数组统计每一个元素被读取的次数，然后将原数组和读取次数的数组分别从大到小排序，然后将两个数组中下标相同的元素的乘积累加，所得结果就是最大所能达到的元素和。
+
+**代码示例：**
+```py
+n = int(input())
+num = [int(i) for i in input().split()]
+# 建立差分数组记录每一个元素被统计的次数
+d = [0 for i in range(n+2)]
+m = int(input())
+for i in range(m):
+    l,r = map(int,input().split())
+    d[l] += 1
+    d[r+1] -= 1
+# 根据差分数组计算出被统计的次数
+times = [0]*(n+1)
+times[0] = d[0]
+for i in range(1,n+1):
+    times[i] = times[i-1] + d[i]
+del times[0]
+# 先计算出原结果
+ans_one = 0
+for i in range(n):
+    ans_one += times[i]*num[i]
+# 排序然后计算出最大结果
+ans_two = 0
+times.sort(reverse = True)
+num.sort(reverse = True)
+for i in range(n):
+    if times[i] == 0:
+        break
+    ans_two += times[i]*num[i]
+print(ans_two - ans_one)
+```
+
